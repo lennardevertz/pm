@@ -253,7 +253,6 @@ contract SourceAsserter is
         );
         string memory sourceCommentContent = baseSourceContent;
         if (bytes(url).length > 0) {
-            // url is the source's URL parameter
             sourceCommentContent = string(
                 abi.encodePacked(baseSourceContent, " (Source URL: ", url, ")")
             );
@@ -294,8 +293,6 @@ contract SourceAsserter is
         } else {
             s.status = Status.Rejected;
         }
-
-        // Leave the bond handling (slash/return) entirely to UMA’s DVM. We do not touch it here.
 
         // Post a comment to ECP indicating the resolution
         if (s.ecpCommentId != bytes32(0)) {
