@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Source Asserter UI</title>
+        <style>
+            body {
+                font-family: sans-serif;
+                margin: 20px;
+                background-color: #f4f4f4;
+                color: #333;
+            }
+            .container {
+                background-color: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                margin-bottom: 20px;
+            }
+            h2,
+            h3 {
+                color: #555;
+            }
+            label {
+                display: block;
+                margin-top: 10px;
+            }
+            input[type="text"],
+            input[type="number"],
+            select {
+                width: 95%;
+                padding: 8px;
+                margin-top: 5px;
+                border-radius: 4px;
+                border: 1px solid #ddd;
+            }
+            button {
+                background-color: #007bff;
+                color: white;
+                padding: 10px 15px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-top: 10px;
+            }
+            button:hover {
+                background-color: #0056b3;
+            }
+            .hidden {
+                display: none;
+            }
+            #statusMessage {
+                margin-top: 15px;
+                padding: 10px;
+                border-radius: 4px;
+            }
+            .success {
+                background-color: #d4edda;
+                color: #155724;
+                border: 1px solid #c3e6cb;
+            }
+            .error {
+                background-color: #f8d7da;
+                color: #721c24;
+                border: 1px solid #f5c6cb;
+            }
+            ul {
+                list-style-type: none;
+                padding: 0;
+            }
+            li {
+                background-color: #e9ecef;
+                margin-bottom: 8px;
+                padding: 10px;
+                border-radius: 4px;
+            }
+            .topic-item,
+            .source-item {
+                border: 1px solid #ccc;
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+            .source-item button {
+                font-size: 0.8em;
+                padding: 5px 8px;
+                margin-left: 10px;
+            }
+
+            /* Add these new styles for the status indicator */
+            .status-indicator {
+                height: 12px;
+                width: 12px;
+                border-radius: 50%;
+                display: inline-block;
+                margin-right: 8px;
+                vertical-align: middle; /* Align dot nicely with text */
+            }
+            .status-indicator.active {
+                background-color: #28a745; /* Green */
+            }
+            .status-indicator.expired {
+                background-color: #dc3545; /* Red */
+            }
+            /* End of new styles */
+        </style>
+    </head>
+    <body>
+        <h1>Source Asserter UI (Sepolia)</h1>
+
+        <div class="container">
+            <h2>Wallet Connection</h2>
+            <button id="connectWalletBtn">Connect Wallet</button>
+            <p>
+                Connected Account:
+                <span id="connectedAccount">Not Connected</span>
+            </p>
+            <p>Network: <span id="networkName">N/A</span></p>
+        </div>
+
+        <div id="statusMessage" class="hidden"></div>
+
+        <div class="container">
+            <h2>Initialize Topic</h2>
+            <label for="topicTitle">Title:</label>
+            <input
+                type="text"
+                id="topicTitle"
+                placeholder="e.g., Groundbreaking Discoveries in Quantum Computing"
+            />
+            <label for="topicDescription">Description:</label>
+            <input
+                type="text"
+                id="topicDescription"
+                placeholder="e.g., A collection of sources related to recent advancements."
+            />
+            <label for="topicOriginUrl">Origin URL (optional):</label>
+            <input
+                type="text"
+                id="topicOriginUrl"
+                placeholder="e.g., https://example.com/main-article-or-topic-origin"
+            />
+            <label for="topicDuration">Duration (seconds):</label>
+            <input
+                type="number"
+                id="topicDuration"
+                placeholder="e.g., 86400 for 1 day"
+                value="86400"
+            />
+            <label for="topicReward"
+                >Source Reward (in RewardToken units, not wei):</label
+            >
+            <input type="text" id="topicReward" placeholder="e.g., 100" />
+            <button id="initializeTopicBtn">Initialize Topic</button>
+        </div>
+
+        <div class="container">
+            <h2>Assert Source</h2>
+            <label for="assertTopicId">Topic ID:</label>
+            <input type="text" id="assertTopicId" placeholder="0x..." />
+            <label for="assertLabel">Label:</label>
+            <select id="assertLabel">
+                <option value="api">api</option>
+                <option value="tweet">tweet</option>
+                <option value="news">news</option>
+                <option value="hearsay">hearsay</option>
+                <option value="original">original</option>
+                <!-- Add more labels if you added them to your contract -->
+            </select>
+            <label for="assertUrl">URL:</label>
+            <input
+                type="text"
+                id="assertUrl"
+                placeholder="https://example.com/source"
+            />
+            <label for="assertSourceDesc">Source Description:</label>
+            <input
+                type="text"
+                id="assertSourceDesc"
+                placeholder="Details about the source"
+            />
+            <button id="assertSourceBtn">Assert Source</button>
+        </div>
+
+        <div class="container">
+            <h2>Topics</h2>
+            <button id="refreshTopicsBtn">Refresh Topics</button>
+            <ul id="topicsList"></ul>
+        </div>
+
+        <div class="container">
+            <h2>Sources</h2>
+            <label for="filterTopicId">Filter by Topic ID (optional):</label>
+            <input type="text" id="filterTopicId" placeholder="0x..." />
+            <button id="refreshSourcesBtn">Refresh Sources</button>
+            <ul id="sourcesList"></ul>
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.0/ethers.umd.min.js"></script>
+        <script src="./app.js"></script>
+    </body>
+</html>
