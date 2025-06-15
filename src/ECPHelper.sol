@@ -23,11 +23,7 @@ interface ICommentManager {
     function postComment(
         ECPCommentData calldata commentData,
         bytes calldata appSignature
-    ) external;
-
-    function getCommentId(
-        ECPCommentData calldata commentData
-    ) external view returns (bytes32 commentId);
+    ) external returns (bytes32 commentId);
 }
 // --- End ECP Structs and Interface ---
 
@@ -59,11 +55,7 @@ library ECPHelper {
             targetUri: "" // Always set targetUri to empty string
         });
 
-        // Step 1: Post the comment (does not return ID)
-        commentManager.postComment(commentData, bytes(""));
-
-        // Step 2: Get the comment ID using the view function
-        commentId = commentManager.getCommentId(commentData);
+        commentId = commentManager.postComment(commentData, bytes(""));
 
         return commentId;
     }

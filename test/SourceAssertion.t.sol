@@ -557,4 +557,116 @@ contract SourceAsserterTest is CommonOptimisticOracleV3Test {
             uint256(SourceAsserter.Status.Rejected)
         );
     }
+
+    function test_TwoAssertions_SameTopic_SeparateRewardApprovals() public {
+        // 1. Initialize Topic by TestAddress.owner
+        vm.prank(TestAddress.owner);
+        bytes32 topicId = sourceAsserter.initializeTopic(
+            "Multi-Assertion Topic",
+            "Testing two assertions on one topic",
+            defaultOriginUrl,
+            200, // Longer duration to accommodate two assertions
+            sourceReward // Reward amount per successful assertion
+        );
+
+        uint256 minimumBond = optimisticOracleV3.getMinimumBond(
+            address(defaultCurrency)
+        );
+
+        // --- First Assertion by TestAddress.account1 ---
+        // Topic creator (TestAddress.owner) approves reward for the first assertion
+        vm.prank(TestAddress.owner);
+        rewardToken.approve(address(sourceAsserter), sourceReward);
+
+        // Asserter1 (TestAddress.account1) setup for bond
+        defaultCurrency.allocateTo(TestAddress.account1, minimumBond);
+        vm.prank(TestAddress.account1);
+        defaultCurrency.approve(address(sourceAsserter), minimumBond);
+
+        // Asserter1 makes the assertion
+        vm.prank(TestAddress.account1);
+        bytes32 assertionId1 = sourceAsserter.assertSource(
+            topicId,
+            labelString,
+            "url1.com",
+            "First source description"
+        );
+
+        // Settle first assertion
+        timer.setCurrentTime(
+            timer.getCurrentTime() + sourceAsserter.assertionLiveness() + 1
+        );
+        vm.expectCall(
+            address(sourceAsserter),
+            abi.encodeCall(
+                sourceAsserter.assertionResolvedCallback,
+                (assertionId1, true)
+            )
+        );
+        bool result1 = optimisticOracleV3.settleAndGetAssertionResult(
+            assertionId1
+        );
+        assertTrue(result1, "First assertion should settle truthfully");
+
+        // Verify Asserter1 received reward
+        assertEq(
+            rewardToken.balanceOf(TestAddress.account1),
+            sourceReward,
+            "Asserter1 reward incorrect"
+        );
+        SourceAsserter.Source memory s1 = sourceAsserter.getSource(assertionId1);
+        assertEq(uint256(s1.status), uint256(SourceAsserter.Status.Valid), "S1 status invalid");
+
+        // --- Second Assertion by TestAddress.account2 ---
+        // Topic creator (TestAddress.owner) approves reward for the SECOND assertion
+        vm.prank(TestAddress.owner);
+        rewardToken.approve(address(sourceAsserter), sourceReward); // Key: separate approval
+
+        // Asserter2 (TestAddress.account2) setup for bond
+        defaultCurrency.allocateTo(TestAddress.account2, minimumBond);
+        vm.prank(TestAddress.account2);
+        defaultCurrency.approve(address(sourceAsserter), minimumBond);
+
+        // Asserter2 makes the assertion
+        vm.prank(TestAddress.account2);
+        bytes32 assertionId2 = sourceAsserter.assertSource(
+            topicId,
+            labelString,
+            "url2.com",
+            "Second source description"
+        );
+
+        // Settle second assertion
+        // Note: Advance time relative to the *current* time, which has already moved forward.
+        // The liveness for assertionId2 starts when it's asserted.
+        timer.setCurrentTime(
+            timer.getCurrentTime() + sourceAsserter.assertionLiveness() + 1
+        );
+        vm.expectCall(
+            address(sourceAsserter),
+            abi.encodeCall(
+                sourceAsserter.assertionResolvedCallback,
+                (assertionId2, true)
+            )
+        );
+        bool result2 = optimisticOracleV3.settleAndGetAssertionResult(
+            assertionId2
+        );
+        assertTrue(result2, "Second assertion should settle truthfully");
+
+        // Verify Asserter2 received reward
+        assertEq(
+            rewardToken.balanceOf(TestAddress.account2),
+            sourceReward,
+            "Asserter2 reward incorrect"
+        );
+        SourceAsserter.Source memory s2 = sourceAsserter.getSource(assertionId2);
+        assertEq(uint256(s2.status), uint256(SourceAsserter.Status.Valid), "S2 status invalid");
+
+        // Verify topic contains both assertions
+        SourceAsserter.Topic memory t = sourceAsserter.getTopic(topicId);
+        assertEq(t.sourceAssertions.length, 2, "Topic should have two assertions");
+        assertEq(t.sourceAssertions[0], assertionId1);
+        assertEq(t.sourceAssertions[1], assertionId2);
+    }
 }
