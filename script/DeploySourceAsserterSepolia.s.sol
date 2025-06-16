@@ -27,7 +27,7 @@ contract DeploySourceAsserterSepolia is Script {
         // Determine ECP Comment Manager address based on chain ID
         uint256 currentChainId = block.chainid;
         address ecpCommentManager;
-        address ecpAddress = 0x3f92769f07cf7263cAf4b28DEF4a7d3F6b58789c;
+        address ecpAddress = 0x519D00E2C60BD598a8c234785216A3037b09F0CF;
         address UMA_FINDER = 0xfF4Ec014E3CBE8f64a95bb022F1623C6e456F7dB;
         address UMA_OOV3 = 0x0F7fC5E6482f096380db6158f978167b57388deE;
         address REWARD_TOKEN = 0xe55E9C1bf81a6ABAD109881B999E5272F5195892;

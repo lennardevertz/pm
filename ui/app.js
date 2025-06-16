@@ -1,20 +1,20 @@
 // // --- CONFIGURATION ---
-const SOURCE_ASSERTER_ADDRESS = "0x4aa59dAded7c781b46Aa04acb329861285dFaCd6"; // Replace with your deployed contract address
-const UMA_OOV3_ADDRESS = "0xFd9e2642a170aDD10F53Ee14a93FcF2F31924944"; // Sepolia OOv3
-const REWARD_TOKEN_ADDRESS = "0x43F532D678b6a1587BE989a50526F89428f68315"; // Sepolia Example Reward Token
-const BOND_CURRENCY_ADDRESS = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"; // Sepolia USDC (this is the DEFAULT_CURRENCY from your deploy script)
-const SEPOLIA_CHAIN_ID = "0xaa36a7"; // 11155111 in hex
-const CONTRACT_CREATION_BLOCK = 8519497; // Block when SourceAsserter was created
-const MAX_RPC_QUERY_RANGE = 5000; // Max number of blocks to query in a single RPC call (as per user feedback)
+// const SOURCE_ASSERTER_ADDRESS = "0xDD961157572e14cB339a250C4eA5e8c793825687"; // Replace with your deployed contract address
+// const UMA_OOV3_ADDRESS = "0xFd9e2642a170aDD10F53Ee14a93FcF2F31924944"; // Sepolia OOv3
+// const REWARD_TOKEN_ADDRESS = "0x43F532D678b6a1587BE989a50526F89428f68315"; // Sepolia Example Reward Token
+// const BOND_CURRENCY_ADDRESS = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"; // Sepolia USDC (this is the DEFAULT_CURRENCY from your deploy script)
+// const SEPOLIA_CHAIN_ID = "0xaa36a7"; // 11155111 in hex
+// const CONTRACT_CREATION_BLOCK = 8519497; // Block when SourceAsserter was created
+// const MAX_RPC_QUERY_RANGE = 5000; // Max number of blocks to query in a single RPC call (as per user feedback)
 
 // --- CONFIGURATION BASE ---
-// const SOURCE_ASSERTER_ADDRESS = "0x08DAA69f088f2a89c1E54403739f102768e64979"; // Replace with your deployed contract address
-// const UMA_OOV3_ADDRESS = "0x0F7fC5E6482f096380db6158f978167b57388deE"; // Sepolia OOv3
-// const REWARD_TOKEN_ADDRESS = "0xe55E9C1bf81a6ABAD109881B999E5272F5195892"; // Sepolia Example Reward Token
-// const BOND_CURRENCY_ADDRESS = "0x7E6d9618Ba8a87421609352d6e711958A97e2512"; // Sepolia USDC (this is the DEFAULT_CURRENCY from your deploy script)
-// const SEPOLIA_CHAIN_ID = "0x14a34"; // 84532 in hex
-// const CONTRACT_CREATION_BLOCK = 26901190; // Block when SourceAsserter was created
-// const MAX_RPC_QUERY_RANGE = 5000; // Max number of blocks to query in a single RPC call (as per user feedback)
+const SOURCE_ASSERTER_ADDRESS = "0x9b94D97337f7F325dFbd0e469cb72bDE7d1988cD"; // Replace with your deployed contract address
+const UMA_OOV3_ADDRESS = "0x0F7fC5E6482f096380db6158f978167b57388deE"; // Sepolia OOv3
+const REWARD_TOKEN_ADDRESS = "0xe55E9C1bf81a6ABAD109881B999E5272F5195892"; // Sepolia Example Reward Token
+const BOND_CURRENCY_ADDRESS = "0x7E6d9618Ba8a87421609352d6e711958A97e2512"; // Sepolia USDC (this is the DEFAULT_CURRENCY from your deploy script)
+const SEPOLIA_CHAIN_ID = "0x14a34"; // 84532 in hex
+const CONTRACT_CREATION_BLOCK = 26901190; // Block when SourceAsserter was created
+const MAX_RPC_QUERY_RANGE = 5000; // Max number of blocks to query in a single RPC call (as per user feedback)
 
 // --- APPLICATION STATE ---
 let provider;
