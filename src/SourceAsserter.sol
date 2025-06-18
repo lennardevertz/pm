@@ -299,9 +299,9 @@ contract SourceAsserter is
             // Only post if original source had an ECP comment
             string memory resolutionCommentContent;
             if (assertedTruthfully) {
-                resolutionCommentContent = "Approved by UMA";
+                resolutionCommentContent = "Approved";
             } else {
-                resolutionCommentContent = "Rejected by UMA";
+                resolutionCommentContent = "Rejected";
             }
             ECPHelper.postCommentAndGetId(
                 commentManager,
