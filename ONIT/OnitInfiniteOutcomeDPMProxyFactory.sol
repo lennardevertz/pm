@@ -63,17 +63,20 @@ contract OnitInfiniteOutcomeDPMProxyFactory is Ownable {
      *
      * @param marketConfig The configuration for the market
      * @param initiator The address of the market creator
+     * @param authorizedSubmitterAddress The address authorized to submit confidence shares
      * @param initialBucketIds The initial bucket ids for the market
      * @param initialShares The initial shares for the market
+     * @param initKappa The kappa value for the DPM
      *
      * @return market The address of the newly created market
      */
     function createMarket(
         address initiator,
-        uint256 seededFunds,
+        address authorizedSubmitterAddress,
         OnitInfiniteOutcomeDPM.MarketConfig memory marketConfig,
         int256[] memory initialBucketIds,
-        int256[] memory initialShares
+        int256[] memory initialShares,
+        int256 initKappa
     ) external payable returns (OnitInfiniteOutcomeDPM market) {
         // Create initialization data for the proxy
         bytes memory encodedInitData = abi.encodeWithSelector(
@@ -81,10 +84,11 @@ contract OnitInfiniteOutcomeDPMProxyFactory is Ownable {
             OnitInfiniteOutcomeDPM.MarketInitData({
                 onitFactory: address(this),
                 initiator: initiator,
-                seededFunds: seededFunds,
+                authorizedSubmitterAddress: authorizedSubmitterAddress,
                 config: marketConfig,
                 initialBucketIds: initialBucketIds,
-                initialShares: initialShares
+                initialShares: initialShares,
+                initKappa: initKappa
             })
         );
 
@@ -106,8 +110,10 @@ contract OnitInfiniteOutcomeDPMProxyFactory is Ownable {
         market = OnitInfiniteOutcomeDPM(payable(marketAddress));
 
         // Initialize the proxy
+        // DPM's initialize function is not payable, so value should be 0.
+        // msg.value sent to createMarket is for the factory, not directly for DPM initialization.
         (bool success, bytes memory returnData) = marketAddress.call{
-            value: msg.value
+            value: 0 // DPM's initialize is not payable
         }(encodedInitData);
         if (!success) {
             // If there's return data it's one of the initialization revert messages, forward the revert message

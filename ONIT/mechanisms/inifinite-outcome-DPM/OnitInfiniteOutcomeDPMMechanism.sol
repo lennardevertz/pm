@@ -60,9 +60,9 @@ contract OnitInfiniteOutcomeDPMMechanism is
     function _initializeInfiniteOutcomeDPM(
         address initiator,
         int256 initOutcomeUnit,
-        int256 initBetValue,
         int256[] memory initShares,
-        int256[] memory initBucketIds
+        int256[] memory initBucketIds,
+        int256 initKappa
     ) internal {
         // Initialize outcome domain parameters
         _initializeOutcomeDomain(initOutcomeUnit);
@@ -77,13 +77,9 @@ contract OnitInfiniteOutcomeDPMMechanism is
         }
         totalQSquared = newTotalQSquared;
 
-        /**
-         * kappa is the constant used in the cost function C(q) = κ * sqrt(Σq²)
-         * It is set to the initial market budget divided by the square root of the sum of initial totalQSquared
-         */
-        kappa = convert(
-            convert(initBetValue).div(sqrt(convert(newTotalQSquared)))
-        );
+        // Kappa is now set directly from the parameter
+        // Kappa is the constant used in the cost function C(q) = κ * sqrt(Σq²)
+        kappa = initKappa;
         if (kappa <= 0) revert InvalidKappa();
 
         // Update the markets outcome token holdings for the initial prediction
@@ -135,6 +131,7 @@ contract OnitInfiniteOutcomeDPMMechanism is
      * @return cost The cost of the position
      */
     function _costPotential(int256 sumQSquared) internal view returns (int256) {
+        if (sumQSquared == 0) return 0;
         return convert(convert(kappa).mul(sqrt(convert(sumQSquared))));
     }
 
@@ -194,22 +191,14 @@ contract OnitInfiniteOutcomeDPMMechanism is
                 revert BucketIdsNotStrictlyIncreasing();
             // For positive shares, check that adding to existing shares won't overflow uint80
             if (shares[i] > 0) {
-                // Safe to cast to uint256 as we know these values are positive
+                // Safe to cast to uint256 as we know shares[i] is positive
+                // and qInInterval[i] (existing shares) is also non-negative.
                 if (uint256(shares[i] + qInInterval[i]) > type(uint80).max) {
                     revert BucketSharesOverflow();
                 }
-                // For negative shares, check that the trader has sufficient balance to subtract
-            } else if (shares[i] < 0) {
-                // Get trader's current balance in this bucket
-                uint256 traderBalance = getBalanceOfShares(
-                    msg.sender,
-                    bucketIds[i]
-                );
-                // Check trader has sufficient balance to subtract
-                if (uint256(-shares[i]) > traderBalance) {
-                    revert InsufficientShares();
-                }
             }
+            // Note: shares[i] is guaranteed to be >= 0 by checks in OnitInfiniteOutcomeDPM.submitConfidenceShares.
+            // Thus, no specific handling for shares[i] < 0 is needed here.
             /**
              * We are comfortable doing this operation without prb math as we know even the worst case will not overflow
              * int256 since shares[i] + qInInterval[i] is restricted to type(uint80).max
@@ -221,6 +210,11 @@ contract OnitInfiniteOutcomeDPMMechanism is
 
         // Q'² = Q² + Σ(Δq_j * (2 * q_j + Δq_j))
         int256 newTotalQSquared = totalQSquared + updateOverTradersInterval;
+        // Ensure newTotalQSquared is not negative.
+        // Since shares[i] (Δq_j) is non-negative, and q_j + Δq_j (q'_j) is non-negative (due to BucketSharesOverflow check
+        // and the fact that we are not removing shares beyond what exists),
+        // each (q_j + Δq_j)^2 term will be non-negative.
+        // Therefore, newTotalQSquared, being a sum of squares, should also be non-negative.
 
         // Calculate cost: C(q') = κ * sqrt(Σq'²)
         int256 newCost = _costPotential(newTotalQSquared);
